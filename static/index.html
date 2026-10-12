@@ -1,0 +1,555 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0A0B10">
+  <meta name="description" content="MetricScope compares software metrics from SonarQube, cloc and Lizard.">
+  <title>MetricScope — Software Metrics Comparator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+  <div class="ambient ambient-violet" aria-hidden="true"></div>
+  <div class="ambient ambient-cyan" aria-hidden="true"></div>
+  <div class="background-grid" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#" data-view-link="analyze" aria-label="MetricScope home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none">
+            <rect x="2" y="2" width="36" height="36" rx="11" fill="url(#brand-gradient)"/>
+            <path d="M10 25V15L16 21L22 13L28 19L31 16" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="brand-gradient" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#8B6CFF"/>
+                <stop offset="1" stop-color="#32CDEB"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="brand-name">Metric<span>Scope</span></span>
+      </a>
+
+      
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-link active" type="button" data-view-link="analyze">Analyze</button>
+        <button class="nav-link" type="button" data-view-link="history">History</button>
+        <button class="nav-link" type="button" data-view-link="project-comparison">Project Compare</button>
+        <button class="nav-link" type="button" data-view-link="how">How it works</button>
+      </nav>
+
+
+      <div class="topbar-actions">
+        <div class="connection-group" aria-label="Tool connection status">
+          <span class="connection-pill" id="status-sonar" title="SonarQube connection">
+            <span class="status-dot"></span>
+            <span class="status-label">SonarQube</span>
+          </span>
+          <span class="connection-pill" id="status-scanner" title="SonarScanner availability">
+            <span class="status-dot"></span>
+            <span class="status-label">Scanner</span>
+          </span>
+          <span class="connection-pill" id="status-cloc" title="cloc availability">
+            <span class="status-dot"></span>
+            <span class="status-label">cloc</span>
+          </span>
+        </div>
+
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle light and dark theme" title="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"/>
+          </svg>
+        </button>
+
+        <button class="icon-button" id="settings-open" type="button" aria-label="Open settings" title="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+
+    <!-- ANALYZE VIEW -->
+    <section class="view active" id="view-analyze" data-view="analyze">
+      <div class="hero-section">
+        <div class="hero-eyebrow">
+          <span class="eyebrow-line"></span>
+          SOFTWARE METRICS INTELLIGENCE
+        </div>
+
+        <h1>
+          Measure your code.<br>
+          <span class="gradient-text">Compare the truth.</span>
+        </h1>
+
+        <p class="hero-description">
+          One project. Three analysis tools. A clearer picture of your software quality.
+        </p>
+
+        <div class="tool-badges">
+          <span class="tool-badge sonar-badge"><span></span> SonarQube</span>
+          <span class="tool-badge cloc-badge"><span></span> cloc</span>
+          <span class="tool-badge lizard-badge"><span></span> Lizard</span>
+        </div>
+      </div>
+
+      <!-- Analyze form -->
+      <section class="analyze-card glass-card" id="analyze-card">
+        <div class="card-heading">
+          <div>
+            <span class="section-kicker">NEW ANALYSIS</span>
+            <h2>Bring your project</h2>
+            <p>Choose how you want to provide your source code.</p>
+          </div>
+          <div class="card-heading-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 16V4m0 0L7 9m5-5 5 5"/>
+              <path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="input-mode-switch" role="group" aria-label="Project input method">
+          <button class="mode-button active" id="mode-upload" type="button" data-input-mode="upload">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+              <path d="M14 2v6h6M8 13h8m-8 4h8"/>
+            </svg>
+            Upload ZIP
+          </button>
+          <button class="mode-button" id="mode-folder" type="button" data-input-mode="folder">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
+            </svg>
+            Local folder
+          </button>
+        </div>
+
+        <!-- ZIP upload -->
+        <div class="input-panel" id="upload-panel">
+          <input id="project-zip" type="file" accept=".zip,application/zip" hidden>
+
+          <div class="drop-zone" id="drop-zone" role="button" tabindex="0" aria-label="Choose a ZIP project file">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 16V4m0 0L7 9m5-5 5 5"/>
+                <path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>
+              </svg>
+            </div>
+            <h3>Drop your project ZIP here</h3>
+            <p>or <span class="browse-link">browse files</span> from your computer</p>
+            <span class="drop-hint">ZIP archive · Maximum size 500 MB</span>
+          </div>
+
+          <div class="selected-file hidden" id="selected-file">
+            <div class="file-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+                <path d="M14 2v6h6"/>
+              </svg>
+            </div>
+            <div class="file-details">
+              <strong id="selected-file-name">project.zip</strong>
+              <span id="selected-file-size">0 MB</span>
+            </div>
+            <button class="icon-button remove-file" id="remove-file" type="button" aria-label="Remove selected file">×</button>
+          </div>
+        </div>
+
+        <!-- Local folder -->
+        <div class="input-panel hidden" id="folder-panel">
+          <label class="field-label" for="folder-path">Project folder path</label>
+          <div class="input-with-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>
+            </svg>
+            <input
+              id="folder-path"
+              type="text"
+              class="text-input mono-input"
+              placeholder="C:\Users\you\projects\my-app"
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </div>
+          <p class="field-hint">Enter the absolute path to a project folder on this computer.</p>
+        </div>
+
+        <div class="field-group project-name-field">
+          <label class="field-label" for="project-name">Project name <span class="optional-label">OPTIONAL</span></label>
+          <input
+            id="project-name"
+            type="text"
+            class="text-input"
+            placeholder="e.g. Student Management System"
+            maxlength="100"
+          >
+        </div>
+
+        <div class="form-message hidden" id="analyze-message" role="alert"></div>
+
+        <button class="button button-primary analyze-button" id="analyze-button" type="button" disabled>
+          <span class="button-label">Analyze project</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14m-7-7 7 7-7 7"/>
+          </svg>
+        </button>
+
+        <div class="analyze-footnote">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          Your source code is analyzed locally on your machine.
+        </div>
+      </section>
+
+      <!-- Progress view -->
+      <section class="progress-card glass-card hidden" id="progress-card" aria-live="polite">
+        <div class="progress-heading">
+          <div>
+            <span class="section-kicker">ANALYSIS IN PROGRESS</span>
+            <h2 id="progress-title">Analyzing your project</h2>
+            <p id="progress-subtitle">Preparing your source code...</p>
+          </div>
+          <div class="elapsed-time">
+            <span>ELAPSED</span>
+            <strong class="mono" id="elapsed-time">00:00</strong>
+          </div>
+        </div>
+
+        <div class="stepper" id="analysis-stepper">
+          <div class="step-item" data-step="0">
+            <span class="step-indicator">1</span>
+            <span class="step-name">SonarScanner</span>
+          </div>
+          <span class="step-connector"></span>
+          <div class="step-item" data-step="1">
+            <span class="step-indicator">2</span>
+            <span class="step-name">Processing</span>
+          </div>
+          <span class="step-connector"></span>
+          <div class="step-item" data-step="2">
+            <span class="step-indicator">3</span>
+            <span class="step-name">cloc</span>
+          </div>
+          <span class="step-connector"></span>
+          <div class="step-item" data-step="3">
+            <span class="step-indicator">4</span>
+            <span class="step-name">Lizard</span>
+          </div>
+          <span class="step-connector"></span>
+          <div class="step-item" data-step="4">
+            <span class="step-indicator">5</span>
+            <span class="step-name">Comparing</span>
+          </div>
+        </div>
+
+        <div class="terminal-panel">
+          <div class="terminal-header">
+            <div class="terminal-lights" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span>METRICSCOPE / LIVE OUTPUT</span>
+            <span class="terminal-live"><span></span> LIVE</span>
+          </div>
+          <div class="terminal-body mono" id="live-logs" role="log" aria-live="polite" aria-relevant="additions">
+            <div class="log-line log-muted">Waiting for analysis process...</div>
+          </div>
+        </div>
+
+        <div class="progress-footer">
+          <span id="progress-status">Initializing...</span>
+          <button class="button button-secondary button-small hidden" id="cancel-progress" type="button">Back to analysis</button>
+        </div>
+      </section>
+
+      <!-- Analysis error -->
+      <section class="error-card glass-card hidden" id="analysis-error" role="alert">
+        <div class="error-icon">!</div>
+        <h2>Analysis couldn't be completed</h2>
+        <p id="analysis-error-message">Something went wrong while analyzing the project.</p>
+        <div class="error-actions">
+          <button class="button button-secondary" id="copy-error" type="button">Copy details</button>
+          <button class="button button-primary" id="retry-analysis" type="button">Try again</button>
+        </div>
+      </section>
+
+      <div class="analyze-bottom-note">
+        <span>POWERED BY</span>
+        <strong>SonarQube</strong>
+        <span class="note-separator">·</span>
+        <strong>cloc</strong>
+        <span class="note-separator">·</span>
+        <strong>Lizard</strong>
+      </div>
+    </section>
+
+    <!-- HISTORY VIEW -->
+    <section class="view" id="view-history" data-view="history">
+      <div class="page-heading">
+        <div>
+          <span class="section-kicker">YOUR WORKSPACE</span>
+          <h1>Analysis history</h1>
+          <p>Revisit previous runs and explore how your projects compare.</p>
+        </div>
+        <button class="button button-primary" type="button" data-view-link="analyze">
+          <span>+ New analysis</span>
+        </button>
+      </div>
+
+      <div class="history-toolbar">
+        <div class="history-count" id="history-count">Your previous analyses</div>
+        <button class="button button-secondary button-small" id="refresh-history" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 7v5h-5M4 17v-5h5"/>
+            <path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="history-grid" id="history-grid">
+        <div class="empty-state glass-card" id="history-empty">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 4h18v16H3z"/>
+              <path d="M3 9h18M8 4v5m8-5v5M8 14h3m2 0h3m-8 3h3"/>
+            </svg>
+          </div>
+          <h2>No analyses yet</h2>
+          <p>Your completed project comparisons will appear here.</p>
+          <button class="button button-primary" type="button" data-view-link="analyze">Analyze your first project</button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- PROJECT COMPARISON VIEW -->
+    <section class="view" id="view-project-comparison" data-view="project-comparison">
+      <div class="page-heading">
+        <div>
+          <span class="section-kicker">PROJECT ANALYSIS</span>
+          <h1>Project Comparison</h1>
+          <p>Compare two saved analyses and understand which project performs better.</p>
+        </div>
+      </div>
+
+      <section class="results-panel">
+        <div class="results-panel-header">
+          <div>
+            <h2>Select projects</h2>
+            <p>Choose two saved analyses to compare their software quality metrics.</p>
+          </div>
+        </div>
+
+        <div class="project-comparison-selectors">
+          <div>
+            <label for="comparison-project-a">Project A</label>
+            <select id="comparison-project-a">
+              <option value="">Select first project</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="comparison-project-b">Project B</label>
+            <select id="comparison-project-b">
+              <option value="">Select second project</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="button button-primary" id="compare-projects-button" type="button">
+          Compare projects
+        </button>
+
+        <div id="project-comparison-error" class="message message-error" hidden></div>
+      </section>
+
+      <div id="project-comparison-results"></div>
+    </section>
+
+
+    <!-- HOW IT WORKS VIEW -->
+    <section class="view" id="view-how" data-view="how">
+      <div class="page-heading">
+        <div>
+          <span class="section-kicker">UNDER THE HOOD</span>
+          <h1>How MetricScope works</h1>
+          <p>Three tools. Different perspectives. One unified comparison.</p>
+        </div>
+      </div>
+
+      <div class="pipeline-grid">
+        <article class="pipeline-card glass-card">
+          <span class="pipeline-number">01</span>
+          <div class="pipeline-icon upload-pipeline">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 16V4m0 0L7 9m5-5 5 5"/>
+              <path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>
+            </svg>
+          </div>
+          <h2>Upload</h2>
+          <p>Provide a ZIP archive or a local folder containing your software project.</p>
+        </article>
+
+        <article class="pipeline-card glass-card">
+          <span class="pipeline-number">02</span>
+          <div class="pipeline-icon analyze-pipeline">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3v18h18M8 15l4-4 3 3 6-7"/>
+            </svg>
+          </div>
+          <h2>Analyze</h2>
+          <p>SonarQube, cloc and Lizard independently inspect the same source code.</p>
+        </article>
+
+        <article class="pipeline-card glass-card">
+          <span class="pipeline-number">03</span>
+          <div class="pipeline-icon compare-pipeline">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3m8-18h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3M8 12h8m-4-4 4 4-4 4"/>
+            </svg>
+          </div>
+          <h2>Compare & explain</h2>
+          <p>MetricScope aligns the results, calculates differences and generates insights.</p>
+        </article>
+      </div>
+
+      <section class="tools-explainer glass-card">
+        <span class="section-kicker">THE THREE TOOLS</span>
+        <h2>Different tools, different strengths</h2>
+
+        <div class="tool-explainer-list">
+          <article class="tool-explainer-item">
+            <span class="tool-color sonar-color"></span>
+            <div>
+              <h3>SonarQube</h3>
+              <p>Analyzes code quality, bugs, vulnerabilities, code smells, complexity and maintainability metrics.</p>
+            </div>
+          </article>
+          <article class="tool-explainer-item">
+            <span class="tool-color cloc-color"></span>
+            <div>
+              <h3>cloc — Count Lines of Code</h3>
+              <p>Counts files, blank lines, comment lines and code lines across supported programming languages.</p>
+            </div>
+          </article>
+          <article class="tool-explainer-item">
+            <span class="tool-color lizard-color"></span>
+            <div>
+              <h3>Lizard</h3>
+              <p>Measures functions, non-comment lines of code and cyclomatic complexity across supported languages.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="faq-section">
+        <span class="section-kicker">GOOD TO KNOW</span>
+        <h2>Why do numbers differ?</h2>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>What is the difference between LOC and NCLOC?</summary>
+            <p>LOC is often used as a general term for lines of code. NCLOC means non-comment lines of code. Tools can apply different rules when counting blank lines, comments and source code.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Why can cloc report more files than SonarQube?</summary>
+            <p>cloc may count files such as documentation, JSON and text files that SonarQube does not analyze as supported source code for the selected project.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What is cyclomatic complexity?</summary>
+            <p>Cyclomatic complexity estimates the number of independent paths through a function or program. SonarQube and Lizard may use different counting rules.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Should all three tools return identical results?</summary>
+            <p>No. Each tool has its own language support and metric definitions. Small differences are expected and do not automatically indicate an error.</p>
+          </details>
+        </div>
+      </section>
+    </section>
+
+    <!-- RESULTS VIEW: populated in Stage 3 -->
+    <section class="view" id="view-results" data-view="results">
+      <div id="results-content"></div>
+    </section>
+
+  </main>
+
+  <!-- Settings modal -->
+  <div class="modal-backdrop hidden" id="settings-modal" role="presentation">
+    <section class="settings-modal glass-card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-header">
+        <div>
+          <span class="section-kicker">CONFIGURATION</span>
+          <h2 id="settings-title">Settings</h2>
+          <p>Connect MetricScope to your local analysis tools.</p>
+        </div>
+        <button class="icon-button" id="settings-close" type="button" aria-label="Close settings">×</button>
+      </div>
+
+      <form id="settings-form">
+        <div class="field-group">
+          <label class="field-label" for="settings-host">SonarQube host URL</label>
+          <input class="text-input" id="settings-host" name="host" type="url" placeholder="http://localhost:9001" required>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="settings-token">SonarQube token</label>
+          <div class="password-field">
+            <input class="text-input" id="settings-token" name="token" type="password" placeholder="Enter a new token to update">
+            <button class="password-toggle" id="toggle-token" type="button">Show</button>
+          </div>
+          <p class="field-hint" id="token-status">Your saved token is never displayed.</p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="settings-scanner">SonarScanner path</label>
+          <input class="text-input mono-input" id="settings-scanner" name="scanner" type="text" placeholder="sonar-scanner">
+        </div>
+
+        <div class="settings-test-row">
+          <button class="button button-secondary" id="test-connection" type="button">Test connection</button>
+          <span id="settings-test-status" class="settings-test-status" aria-live="polite"></span>
+        </div>
+
+        <div class="settings-checks hidden" id="settings-checks"></div>
+
+        <div class="modal-actions">
+          <button class="button button-secondary" id="settings-cancel" type="button">Cancel</button>
+          <button class="button button-primary" id="settings-save" type="submit">Save settings</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <footer class="app-footer">
+    <span>MetricScope</span>
+    <span class="footer-dot">·</span>
+    <span>Software Metrics course project</span>
+    <span class="footer-spacer"></span>
+    <span>Built for clarity. Designed for insight.</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
