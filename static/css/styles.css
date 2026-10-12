@@ -1837,3 +1837,17 @@ footer {
 .insight-level.info .insight-title {
     border-left-color: var(--cyan);
 }
+/* Fix local folder icon size */
+#folder-panel .input-with-icon > svg {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    max-width: 20px;
+    flex: 0 0 20px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
